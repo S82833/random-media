@@ -28,7 +28,7 @@ function ImageTable() {
     }
 
     function handleBorrarSeleccionados(){
-        fetch('http://media.authormedia.org/api/delete',{
+        fetch('https://media.authormedia.org/api/delete',{
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -47,7 +47,7 @@ function ImageTable() {
     }
 
     useEffect(() => {
-        fetch('http://media.authormedia.org/api/images')
+        fetch('https://media.authormedia.org/api/images')
         .then(response => response.json())
         .then(data => {
             setImagenes(data);
