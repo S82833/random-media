@@ -7,6 +7,28 @@ function ImageTable() {
     const [busqueda, setBusqueda] = useState("");
     const [seleccionados, setSeleccionados] = useState([]);
     const [busquedaInput, setBusquedaInput] = useState("");
+    const [page, setPage] = useState(1);
+    const [limitSeleccionado, setLimitSeleccionado] = useState(10000)
+    const [deleted, setDeleted] = useState(false)
+
+    function cargarImagenes(){
+        const url = new URL("https://media.authormedia.org/api/images");
+        url.searchParams.append("page", page);
+        url.searchParams.append("limit", limitSeleccionado);
+
+        if (deleted) url.searchParams.append("deleted", deleted)
+        if (labelSeleccionado) url.searchParams.append("label", labelSeleccionado);
+        if (busqueda) url.searchParams.append("search", busqueda);
+
+        fetch(url.toString())
+            .then(response => response.json())
+            .then(data => {
+                setImagenes(data)
+            })
+            .catch(error => {
+                console.log("Error al obtener media", error)
+            });
+    }
 
     function toggleSeleccion(id){
         setSeleccionados(prev =>
@@ -46,20 +68,40 @@ function ImageTable() {
         });
     }
 
-    useEffect(() => {
-        fetch('https://media.authormedia.org/api/images')
+    function handleRestaurarSeleccionados(){
+        fetch("https://media.authormedia.org/api/restore", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ ids: seleccionados })
+        })
         .then(response => response.json())
         .then(data => {
-            setImagenes(data);
-
-            //extraer labels unicos
-            const labels = [...new Set(data.map(img => img.label))];
-            setLabelsDisponibles(labels);
+            console.log("Media restaurada", data);
+            setImagenes(imagenes.filter(img => !seleccionados.includes(img.id)));
+            setSeleccionados([]);
         })
         .catch(error => {
-            console.error('Error al obtener media', error)
+            console.log("Error al restaurar media", error)
         });
+    }
+
+    useEffect(() => {
+        fetch('https://media.authormedia.org/api/labels')
+        .then(response => response.json())
+        .then(labels => {
+            console.log(labels)
+            setLabelsDisponibles(labels)
+        })
+        .catch(error => {
+            console.error('Error al obtener labels', error)
+        })
     }, [])
+
+    useEffect(() => {
+        cargarImagenes();
+    }, [page, labelSeleccionado, busqueda, limitSeleccionado, deleted])
 
     const imagenesFiltradas = imagenes.filter(img => {
         const coincideLabel =
@@ -80,7 +122,7 @@ function ImageTable() {
                 >
                 <option value="">-- Filtrar por label --</option>
                 {labelsDisponibles.map(label => (
-                    <option key={label} value={label}>{label}</option>
+                    <option key={label.label} value={label.label}>{label.label}</option>
                 ))}
             </select>
             <input
@@ -91,18 +133,86 @@ function ImageTable() {
                 onChange={(e) => setBusquedaInput(e.target.value)}
                 onKeyDown={(e) => {
                     if(e.key === 'Enter'){
-                        setBusqueda(busquedaInput)
+                        setPage(1);
+                        setBusqueda(busquedaInput);
                     }
                 }}
             />
-            <button
-                className="btn btn-danger mb-3"
-                onClick={handleBorrarSeleccionados}
-                disabled={seleccionados.length===0}
-            >
-                Borrar Seleccionados
-            </button>
-            <h2>Tabla de Media</h2>
+            <select
+                className="form-select mb-3"
+                value={limitSeleccionado}
+                onChange={(e) => setLimitSeleccionado(e.target.value)}
+                >
+                <option key={10000} value={10000}>10000</option>
+                <option key={1000} value={1000}>1000</option>
+                <option key={500} value={500}>500</option>
+                <option key={100} value={100}>100</option>
+
+            </select>
+            {deleted ? (
+                <button
+                    className="btn btn-success mb-3"
+                    onClick={handleRestaurarSeleccionados}
+                    disabled={seleccionados.length===0}
+                >
+                    Restaurar Seleccionados
+                </button>
+            ) : (
+                <button
+                    className="btn btn-danger mb-3"
+                    onClick={handleBorrarSeleccionados}
+                    disabled={seleccionados.length===0}
+                >
+                    Borrar Seleccionados
+                </button>
+            )}
+
+            <div className="container">
+                <div className="row align-items-end">
+                    <h2 className="col-3">Tabla de Media</h2>
+                    <div className="col-7"></div>
+                    {deleted ? (
+                        <button 
+                            className="col text-end mb-0 btn btn-link"
+                            onClick={() => {
+                                setDeleted(false);
+                                setPage(1);
+                            }}
+                        >
+                            Mostrar Media
+                        </button>
+                    ) : (
+                        <button 
+                            className="col text-end mb-0 btn btn-link"
+                            onClick={() => {
+                                setDeleted(true);
+                                setPage(1);
+                            }}
+                        >
+                            Mostrar Media Oculta
+                        </button>
+                    )}
+                </div>
+            </div>
+            
+            <div className="d-flex justify-content-between mb-3 mt-3">
+                <button
+                    className="btn btn-primary"
+                    disabled={page === 1}
+                    onClick={() => setPage(page - 1)}
+                >
+                    Página anterior
+                </button>
+                <span className="align-self-center">Página {page}</span>
+                <button
+                    className="btn btn-primary"
+                    disabled={imagenes.length < limitSeleccionado}
+                    onClick={() => setPage(page + 1)}
+                >
+                    Página siguiente
+                </button>
+            </div>
+
             <div className="table-responsive">
                 <table className="table table-striped table-bordered">
                     <thead>
@@ -110,9 +220,10 @@ function ImageTable() {
                             <th>Media URL</th>
                             <th>Label</th>
                             <th>Media</th>
-                            <th>
-                                Seleccionar
-                                <input 
+                            <th className="d-flex align-items-center justify-content-between">
+                                <span>Seleccionar</span>
+                                <input
+                                    className="form-check-input ms"
                                     type="checkbox"
                                     checked={
                                         imagenesFiltradas.length > 0 &&
@@ -129,12 +240,16 @@ function ImageTable() {
                                 <td><a href={img.image_url}>{img.image_url}</a></td>
                                 <td>{img.label}</td>
                                 <td><img src={img.image_url} alt={img.label} width="100"/></td>
-                                <td>
-                                    <input
-                                        type="checkbox"
-                                        checked={seleccionados.includes(img.id)}
-                                        onChange={() => toggleSeleccion(img.id)}
-                                    />
+                                <td className="text-center align-middle">
+                                    <div className="form-check form-switch">
+                                        <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            id="flexSwitchCheckDefault"
+                                            checked={seleccionados.includes(img.id)}
+                                            onChange={() => toggleSeleccion(img.id)}
+                                        />
+                                    </div>
                                 </td>
                             </tr>
                         ))}
