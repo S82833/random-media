@@ -10,25 +10,41 @@ function ImageTable() {
     const [page, setPage] = useState(1);
     const [limitSeleccionado, setLimitSeleccionado] = useState(10000)
     const [deleted, setDeleted] = useState(false)
+    const [imagesCount, setImagesCount] = useState(0)
+    const [loading, setLoading] = useState(false);
 
-    function cargarImagenes(){
-        const url = new URL("https://media.authormedia.org/api/images");
-        url.searchParams.append("page", page);
-        url.searchParams.append("limit", limitSeleccionado);
 
-        if (deleted) url.searchParams.append("deleted", deleted)
-        if (labelSeleccionado) url.searchParams.append("label", labelSeleccionado);
-        if (busqueda) url.searchParams.append("search", busqueda);
+    function cargarImagenes() {
+    setLoading(true);
 
-        fetch(url.toString())
-            .then(response => response.json())
-            .then(data => {
-                setImagenes(data)
-            })
-            .catch(error => {
-                console.log("Error al obtener media", error)
-            });
-    }
+    const url = new URL("https://media.authormedia.org/api/images");
+    const url_count = new URL("https://media.authormedia.org/api/images_count");
+
+    url.searchParams.append("page", page);
+    url.searchParams.append("limit", limitSeleccionado);
+    if (deleted) url.searchParams.append("deleted", deleted);
+    if (labelSeleccionado) url.searchParams.append("label", labelSeleccionado);
+    if (busqueda) url.searchParams.append("search", busqueda);
+
+    url_count.searchParams.append("deleted", deleted);
+    if (labelSeleccionado) url_count.searchParams.append("label", labelSeleccionado);
+    if (busqueda) url_count.searchParams.append("search", busqueda);
+
+    Promise.all([
+        fetch(url.toString()).then(r => r.json()),
+        fetch(url_count.toString()).then(r => r.json())
+    ])
+    .then(([imagenesData, countData]) => {
+        setImagenes(imagenesData);
+        setImagesCount(countData.count);
+        setLoading(false);
+    })
+    .catch(error => {
+        console.log("Error al obtener media", error);
+        setLoading(false);
+    });
+}
+
 
     function toggleSeleccion(id){
         setSeleccionados(prev =>
@@ -204,6 +220,19 @@ function ImageTable() {
                     Página anterior
                 </button>
                 <span className="align-self-center">Página {page}</span>
+                <div className="d-flex align-items-center">
+                    {loading ? (
+                        <span className="me-2">Cargando...</span>
+                    ) : (
+                        <span className="me-2">
+                            {imagenes.length < limitSeleccionado
+                                ? ((page - 1) * limitSeleccionado + imagenes.length)
+                                : page * limitSeleccionado
+                            }
+                            /{imagesCount}
+                        </span>
+                    )}
+                </div>
                 <button
                     className="btn btn-primary"
                     disabled={imagenes.length < limitSeleccionado}
