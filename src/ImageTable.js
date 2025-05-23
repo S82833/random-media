@@ -1,50 +1,105 @@
 import { useEffect, useState } from "react";
+import Select from "react-select";
 
 function ImageTable() {
     const [imagenes, setImagenes] = useState([]);
     const [labelsDisponibles, setLabelsDisponibles] = useState([]);
-    const [labelSeleccionado, setLabelSeleccionado] = useState("");
-    const [busqueda, setBusqueda] = useState("");
+    const [labelsSeleccionados, setLabelsSeleccionados] = useState([]);
     const [seleccionados, setSeleccionados] = useState([]);
-    const [busquedaInput, setBusquedaInput] = useState("");
     const [page, setPage] = useState(1);
-    const [limitSeleccionado, setLimitSeleccionado] = useState(10000)
+    const [limitSeleccionado, setLimitSeleccionado] = useState(100);
     const [deleted, setDeleted] = useState(false)
-    const [imagesCount, setImagesCount] = useState(0)
+    const [imagesCount, setImagesCount] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [keywordsDisponibles, setKeywordsDisponibles] = useState([]);
+    const [keywordsSeleccionados, setKeywordsSeleccionados] = useState([])
+    const [keywordsMode, setKeywordsMode] = useState({ label: "or", value: "or" });
 
 
     function cargarImagenes() {
-    setLoading(true);
+        setLoading(true);
 
-    const url = new URL("https://media.authormedia.org/api/images");
-    const url_count = new URL("https://media.authormedia.org/api/images_count");
+        const url = new URL("https://media.authormedia.org/api/images");
+        const url_count = new URL("https://media.authormedia.org/api/images_count");
 
-    url.searchParams.append("page", page);
-    url.searchParams.append("limit", limitSeleccionado);
-    if (deleted) url.searchParams.append("deleted", deleted);
-    if (labelSeleccionado) url.searchParams.append("label", labelSeleccionado);
-    if (busqueda) url.searchParams.append("search", busqueda);
+        url.searchParams.append("page", page);
+        url.searchParams.append("limit", limitSeleccionado);
+        url.searchParams.append("deleted", deleted);
+        url_count.searchParams.append("deleted", deleted);
 
-    url_count.searchParams.append("deleted", deleted);
-    if (labelSeleccionado) url_count.searchParams.append("label", labelSeleccionado);
-    if (busqueda) url_count.searchParams.append("search", busqueda);
+        if (keywordsMode?.value && keywordsSeleccionados.length > 0) {
+        url.searchParams.append("keywords_mode", keywordsMode.value);
+        url_count.searchParams.append("keywords_mode", keywordsMode.value);
+        }
 
-    Promise.all([
-        fetch(url.toString()).then(r => r.json()),
-        fetch(url_count.toString()).then(r => r.json())
-    ])
-    .then(([imagenesData, countData]) => {
-        setImagenes(imagenesData);
-        setImagesCount(countData.count);
-        setLoading(false);
-    })
-    .catch(error => {
-        console.log("Error al obtener media", error);
-        setLoading(false);
-    });
-}
+        if (labelsSeleccionados.length > 0) {
+            const labelValues = labelsSeleccionados.map(l => l.value).join(",");
+            url.searchParams.append("labels", labelValues);
+            url_count.searchParams.append("labels", labelValues);
+        }
+        if (keywordsSeleccionados.length > 0) {
+            const keywordValues = keywordsSeleccionados.map(k => k.value).join(",");
+            url.searchParams.append("keywords", keywordValues);
+            url_count.searchParams.append("keywords", keywordValues);
+        }
 
+        Promise.all([
+            fetch(url.toString()).then(r => r.json()),
+            fetch(url_count.toString()).then(r => r.json())
+        ])
+        .then(([imagenesData, countData]) => {
+            setImagenes(imagenesData);
+            setImagesCount(countData.count);
+            setLoading(false);
+        })
+        .catch(error => {
+            console.log("Error al obtener media", error);
+            setLoading(false);
+        });
+    }
+
+    function cargarLabels(){
+        const url = new URL("https://media.authormedia.org/api/labels");
+        url.searchParams.append("deleted", deleted)
+        if (keywordsMode) url.searchParams.append("keywords_mode", keywordsMode);
+        if (labelsSeleccionados.length > 0) {
+            const labelValues = labelsSeleccionados.map(l => l.value).join(",");
+            url.searchParams.append("labels", labelValues);
+        }
+        fetch(url.toString())
+        .then(response => response.json())
+        .then(labelsData => {
+            const options = labelsData.map(label => ({
+                value: label,
+                label: label
+            }));
+            setLabelsDisponibles(options);
+        })
+        .catch(error => {
+            console.log("Error al obtener labels", error)
+        })
+    }
+
+    function cargarKeywords(){
+        const url = new URL("https://media.authormedia.org/api/keywords");
+        url.searchParams.append("deleted", deleted)
+        if (keywordsSeleccionados.length > 0) {
+            const keywordValues = keywordsSeleccionados.map(k => k.value).join(",");
+            url.searchParams.append("keywords", keywordValues);
+        }
+        fetch(url.toString())
+        .then(response => response.json())
+        .then(keywordsData => {
+            const options = keywordsData.map(keyword => ({
+                value: keyword,
+                label: keyword
+            }));
+            setKeywordsDisponibles(options);
+        })
+        .catch(error => {
+            console.log("Error al obtener keywords", error)
+        })
+    }
 
     function toggleSeleccion(id){
         setSeleccionados(prev =>
@@ -55,7 +110,7 @@ function ImageTable() {
     }
 
     function toggleSeleccionarTodos(){
-        const idsFiltrados = imagenesFiltradas.map(img => img.id);
+        const idsFiltrados = imagenes.map(img => img.id);
         const todosSeleccionados = idsFiltrados.every(id => seleccionados.includes(id));
 
         if (todosSeleccionados){
@@ -76,7 +131,7 @@ function ImageTable() {
         .then(response => response.json())
         .then(data => {
             console.log("Media eliminada:", data);
-            setImagenes(imagenes.filter(img => !seleccionados.includes(img.id)));
+            cargarImagenes();
             setSeleccionados([]);
         })
         .catch(error => {
@@ -95,7 +150,7 @@ function ImageTable() {
         .then(response => response.json())
         .then(data => {
             console.log("Media restaurada", data);
-            setImagenes(imagenes.filter(img => !seleccionados.includes(img.id)));
+            cargarImagenes();
             setSeleccionados([]);
         })
         .catch(error => {
@@ -103,57 +158,49 @@ function ImageTable() {
         });
     }
 
+    //Cargar labels
     useEffect(() => {
-        fetch('https://media.authormedia.org/api/labels')
-        .then(response => response.json())
-        .then(labels => {
-            console.log(labels)
-            setLabelsDisponibles(labels)
-        })
-        .catch(error => {
-            console.error('Error al obtener labels', error)
-        })
-    }, [])
+        cargarLabels()
+    }, [keywordsSeleccionados])
 
+    //Cargar keywords
+    useEffect(() => {
+        cargarKeywords()
+    }, [labelsSeleccionados])
+
+    //Cargar imagenes
     useEffect(() => {
         cargarImagenes();
-    }, [page, labelSeleccionado, busqueda, limitSeleccionado, deleted])
-
-    const imagenesFiltradas = imagenes.filter(img => {
-        const coincideLabel =
-        labelSeleccionado === "" || img.label === labelSeleccionado;
-        
-        const coincideBusqueda = 
-        busqueda === "" || img.image_url.toLowerCase().includes(busqueda.toLowerCase());
-
-        return coincideLabel && coincideBusqueda;
-    });
+    }, [page, labelsSeleccionados, keywordsSeleccionados, limitSeleccionado, deleted])
 
     return (
         <div>
-            <select
-                className="form-select mb-3"
-                value={labelSeleccionado}
-                onChange={(e) => setLabelSeleccionado(e.target.value)}
-                >
-                <option value="">-- Filtrar por label --</option>
-                {labelsDisponibles.map(label => (
-                    <option key={label.label} value={label.label}>{label.label}</option>
-                ))}
-            </select>
-            <input
-                className="form-control mb-3"
-                type="text"
-                placeholder="Buscar en URL"
-                value={busquedaInput}
-                onChange={(e) => setBusquedaInput(e.target.value)}
-                onKeyDown={(e) => {
-                    if(e.key === 'Enter'){
-                        setPage(1);
-                        setBusqueda(busquedaInput);
-                    }
-                }}
+            <label className="form-label">Filtrar por labels:</label>
+            <Select
+                isMulti
+                options={labelsDisponibles}
+                value={labelsSeleccionados}
+                onChange={setLabelsSeleccionados}
+                className="mb-3"
             />
+            <div className="row">
+                <div className="col-auto">
+                    <Select
+                    options={[{label:"and", value:"and"}, {label:"or", value:"or"}]}
+                    value={keywordsMode}
+                    onChange={setKeywordsMode}
+                    />
+                </div>
+                <div className="col">
+                    <Select
+                    isMulti
+                    options={keywordsDisponibles}
+                    value={keywordsSeleccionados}
+                    onChange={setKeywordsSeleccionados}
+                    className="col mb-3"
+                    />
+                </div>
+            </div>
             <select
                 className="form-select mb-3"
                 value={limitSeleccionado}
@@ -215,7 +262,10 @@ function ImageTable() {
                 <button
                     className="btn btn-primary"
                     disabled={page === 1}
-                    onClick={() => setPage(page - 1)}
+                    onClick={() => {
+                        setPage(page - 1)
+                        setSeleccionados([])
+                    }}
                 >
                     Página anterior
                 </button>
@@ -225,6 +275,7 @@ function ImageTable() {
                         <span className="me-2">Cargando...</span>
                     ) : (
                         <span className="me-2">
+                            {(limitSeleccionado * (page-1))}-
                             {imagenes.length < limitSeleccionado
                                 ? ((page - 1) * limitSeleccionado + imagenes.length)
                                 : page * limitSeleccionado
@@ -236,7 +287,10 @@ function ImageTable() {
                 <button
                     className="btn btn-primary"
                     disabled={imagenes.length < limitSeleccionado}
-                    onClick={() => setPage(page + 1)}
+                    onClick={() => {
+                        setPage(page + 1);
+                        setSeleccionados([]);
+                    }}
                 >
                     Página siguiente
                 </button>
@@ -247,7 +301,6 @@ function ImageTable() {
                     <thead>
                         <tr>
                             <th>Media URL</th>
-                            <th>Label</th>
                             <th>Media</th>
                             <th className="d-flex align-items-center justify-content-between">
                                 <span>Seleccionar</span>
@@ -255,8 +308,8 @@ function ImageTable() {
                                     className="form-check-input ms"
                                     type="checkbox"
                                     checked={
-                                        imagenesFiltradas.length > 0 &&
-                                        imagenesFiltradas.every(img => seleccionados.includes(img.id))
+                                        imagenes.length > 0 &&
+                                        imagenes.every(img => seleccionados.includes(img.id))
                                     }
                                     onChange={() => toggleSeleccionarTodos()}
                                 />
@@ -264,10 +317,9 @@ function ImageTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {imagenesFiltradas.map(img => (
+                        {imagenes.map(img => (
                             <tr key={img.id}>
                                 <td><a href={img.image_url}>{img.image_url}</a></td>
-                                <td>{img.label}</td>
                                 <td><img src={img.image_url} alt={img.label} width="100"/></td>
                                 <td className="text-center align-middle">
                                     <div className="form-check form-switch">
