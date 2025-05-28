@@ -62,9 +62,9 @@ function ImageTable() {
         const url = new URL("https://media.authormedia.org/api/labels");
         url.searchParams.append("deleted", deleted)
         if (keywordsMode) url.searchParams.append("keywords_mode", keywordsMode);
-        if (labelsSeleccionados.length > 0) {
-            const labelValues = labelsSeleccionados.map(l => l.value).join(",");
-            url.searchParams.append("labels", labelValues);
+        if (keywordsSeleccionados.length > 0) {
+            const keywordValues = keywordsSeleccionados.map(k => k.value).join(",");
+            url.searchParams.append("keywords", keywordValues);
         }
         fetch(url.toString())
         .then(response => response.json())
@@ -83,9 +83,9 @@ function ImageTable() {
     function cargarKeywords(){
         const url = new URL("https://media.authormedia.org/api/keywords");
         url.searchParams.append("deleted", deleted)
-        if (keywordsSeleccionados.length > 0) {
-            const keywordValues = keywordsSeleccionados.map(k => k.value).join(",");
-            url.searchParams.append("keywords", keywordValues);
+        if (labelsSeleccionados.length > 0) {
+            const labelValues = labelsSeleccionados.map(l => l.value).join(",");
+            url.searchParams.append("labels", labelValues);
         }
         fetch(url.toString())
         .then(response => response.json())
@@ -171,7 +171,7 @@ function ImageTable() {
     //Cargar imagenes
     useEffect(() => {
         cargarImagenes();
-    }, [page, labelsSeleccionados, keywordsSeleccionados, limitSeleccionado, deleted])
+    }, [page, labelsSeleccionados, keywordsSeleccionados, limitSeleccionado, deleted, keywordsMode])
 
     return (
         <div>
