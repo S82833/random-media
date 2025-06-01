@@ -26,6 +26,12 @@ function Navbar({ isAdmin, onLogout}) {
             )}
 
             <li className="nav-item">
+              <Link className={`nav-link ${location.pathname === "/preapprove_images" ? "active" : ""}`} to="/preapprove_images">
+                Pre Approve Images
+              </Link>
+            </li>
+
+            <li className="nav-item">
               <Link className={`nav-link ${location.pathname === "/assign_keywords" ? "active" : ""}`} to="/assign_keywords">
                 Assign Keywords
               </Link>

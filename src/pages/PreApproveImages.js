@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo } from "react";
-import { useApproveImages } from "../hooks/useApproveImages";
+import { usePreApproveImages } from "../hooks/usePreApproveImages";
 import FiltersLabelPrompt from "../components/filters/FiltersLabelPrompts";
 import ImageTableView from "../components/ImageTableView";
 
-function ApproveImages() {
+function PreApproveImages() {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(100);
     const [accepted, setAccepted] = useState()
@@ -40,7 +40,6 @@ function ApproveImages() {
         if (labelsSeleccionados) {
             url.searchParams.append("labels", labelsSeleccionados.label);
         }
-        url.searchParams.append("status", "preapproved")
         fetch(url.toString())
         .then(response => response.json())
         .then(promptsData => {
@@ -63,8 +62,9 @@ function ApproveImages() {
         labels: labelsSeleccionados ? [labelsSeleccionados.value] : [],
         prompts: promptsSeleccionados ? [promptsSeleccionados.value] : [],
     }), [labelsSeleccionados, promptsSeleccionados]);
-    
-    const { imagenes, imagesCount, loading } = useApproveImages({
+
+
+    const { imagenes, imagesCount, loading } = usePreApproveImages({
         page,
         limit,
         filtros,
@@ -93,7 +93,7 @@ function ApproveImages() {
     }
         //aprobar o desaprobar
     const handleAccionSeleccionados = async (accion) => {
-    const endpoint = accion === "accept" ? "/api/approve/accept" : "/api/approve/reject";
+    const endpoint = accion === "accept" ? "/api/preapprove/accept" : "/api/approve/reject";
         try {
             await fetch(`https://media.authormedia.org${endpoint}`, {
             method: "POST",
@@ -201,4 +201,4 @@ function ApproveImages() {
 
 }
 
-export default ApproveImages
+export default PreApproveImages

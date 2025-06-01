@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const useApproveImages = ({ page, limit, filtros, refreshKey }) => {
+export const usePreApproveImages = ({ page, limit, filtros, refreshKey }) => {
   const [imagenes, setImagenes] = useState([]);
   const [imagesCount, setImagesCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -9,7 +9,6 @@ export const useApproveImages = ({ page, limit, filtros, refreshKey }) => {
     const url = new URL("https://media.authormedia.org/api/approve/images");
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
-    url.searchParams.append("status", "preapproved");
 
     const labelId = filtros.labels?.[0];
     const promptId = filtros.prompts?.[0];
@@ -37,7 +36,6 @@ export const useApproveImages = ({ page, limit, filtros, refreshKey }) => {
   useEffect(() => {
     const countUrl = new URL("https://media.authormedia.org/api/approve/images_count");
 
-    countUrl.searchParams.append("status", "preapproved");
     const labelId = filtros.labels?.[0];
     const promptId = filtros.prompts?.[0];
 

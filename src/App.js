@@ -5,6 +5,7 @@ import { supabase } from './supabaseClient';
 import Login from './pages/Login';
 import ImageTable from './pages/ImageTable';
 import ApproveImages from './pages/ApproveImages';
+import PreApproveImages from './pages/PreApproveImages';
 import AssignKeywords from './pages/AssignKeywords'; 
 import Navbar from './components/Navbar'; 
 
@@ -38,6 +39,7 @@ function App() {
           <Route path="/" element={<ImageTable />}/>
           {isAdmin && <Route path="/approve_images" element={<ApproveImages />}/>}
           <Route path="/assign_keywords" element={<AssignKeywords />}/>
+          <Route path='/preapprove_images' element={<PreApproveImages />}/>
           <Route path="*" element={<Navigate to="/" />}/>
         </Routes>
       </div>

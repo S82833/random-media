@@ -203,6 +203,12 @@ function ImageTable() {
                 seleccionados={seleccionados}
                 toggleSeleccion={toggleSeleccion}
                 toggleSeleccionarTodos={toggleSeleccionarTodos}
+                extraColumns={[
+                    {
+                        header: "Keywords",
+                        render: (img) => (img.keywords ? img.keywords.join(", "): "-")
+                    }
+                ]}
             />
         </div>
     );

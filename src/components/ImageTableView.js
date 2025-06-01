@@ -1,10 +1,28 @@
-function ImageTableView({ imagenes, seleccionados, toggleSeleccion, toggleSeleccionarTodos }) {
+import { useState } from "react";
+import ZoomModal from "./ZoomModal";
+
+function ImageTableView({ imagenes, seleccionados, toggleSeleccion, toggleSeleccionarTodos, extraColumns=[] }) {
+  const [imagenModal, setImagenModal] = useState(null);
+  const [zoomed, setZoomed] = useState(false);
+    const cerrarModal = () => {
+      setImagenModal(null);
+      setZoomed(false); // reset zoom
+  };
+
+  const toggleZoom = (e) => {
+    e.stopPropagation(); // no cerrar el modal
+    setZoomed((prev) => !prev);
+  };
+
   return (
     <div className="table-responsive">
       <table className="table table-striped table-bordered">
         <thead>
           <tr>
             <th>Media URL</th>
+            {extraColumns.map((col, index) => (
+              <th key={`extra-th-${index}`}>{col.header}</th>
+            ))}
             <th>Media</th>
             <th className="d-flex align-items-center justify-content-between">
               <span>Seleccionar</span>
@@ -24,7 +42,19 @@ function ImageTableView({ imagenes, seleccionados, toggleSeleccion, toggleSelecc
           {imagenes.map((img) => (
             <tr key={img.id}>
               <td><a href={img.image_url}>{img.image_url}</a></td>
-              <td><img src={img.image_url} alt={img.label} width="100" /></td>
+              {extraColumns.map((col, index) => (
+                <td key={`extra-td-${index}`}>{col.render(img)}</td>
+              ))}
+              <td>
+                <img
+                  loading="lazy"
+                  src={img.image_url}
+                  alt={img.label}
+                  width="100"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setImagenModal(img.image_url)}
+                />
+              </td>
               <td className="text-center align-middle">
                 <div className="form-check form-switch">
                   <input
@@ -39,6 +69,9 @@ function ImageTableView({ imagenes, seleccionados, toggleSeleccion, toggleSelecc
           ))}
         </tbody>
       </table>
+        {imagenModal && (
+          <ZoomModal imageUrl={imagenModal} onClose={cerrarModal} />
+        )}
     </div>
   );
 }
