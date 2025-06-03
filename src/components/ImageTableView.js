@@ -20,9 +20,6 @@ function ImageTableView({ imagenes, seleccionados, toggleSeleccion, toggleSelecc
         <thead>
           <tr>
             <th>Media URL</th>
-            {extraColumns.map((col, index) => (
-              <th key={`extra-th-${index}`}>{col.header}</th>
-            ))}
             <th>Media</th>
             <th className="d-flex align-items-center justify-content-between">
               <span>Seleccionar</span>
@@ -36,15 +33,15 @@ function ImageTableView({ imagenes, seleccionados, toggleSeleccion, toggleSelecc
                 onChange={toggleSeleccionarTodos}
               />
             </th>
+            {extraColumns.map((col, index) => (
+              <th key={`extra-th-${index}`}>{col.header}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {imagenes.map((img) => (
             <tr key={img.id}>
               <td><a href={img.image_url}>{img.image_url}</a></td>
-              {extraColumns.map((col, index) => (
-                <td key={`extra-td-${index}`}>{col.render(img)}</td>
-              ))}
               <td>
                 <img
                   loading="lazy"
@@ -65,6 +62,9 @@ function ImageTableView({ imagenes, seleccionados, toggleSeleccion, toggleSelecc
                   />
                 </div>
               </td>
+              {extraColumns.map((col, index) => (
+                <td className="text-center align-middle" key={`extra-td-${index}`}>{col.render(img)}</td>
+              ))}
             </tr>
           ))}
         </tbody>

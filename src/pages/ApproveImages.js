@@ -17,6 +17,9 @@ function ApproveImages() {
     const [seleccionados, setSeleccionados] = useState([]);
     const [refreshKey, setRefreshKey] = useState(0);
 
+    const [shadeSeleccionadoPorId, setShadeSeleccionadoPorId] = useState({});
+
+
 
     //cargar labels
     useEffect(() => {
@@ -93,21 +96,31 @@ function ApproveImages() {
     }
         //aprobar o desaprobar
     const handleAccionSeleccionados = async (accion) => {
-    const endpoint = accion === "accept" ? "/api/approve/accept" : "/api/approve/reject";
+        const endpoint = accion === "accept" ? "/api/approve/accept" : "/api/approve/reject";
+        
+        // solo si estamos aprobando
+        const payload = accion === "accept"
+            ? {
+                ids: seleccionados,
+                ids_with_shade: seleccionados.filter(id => shadeSeleccionadoPorId[id])
+            }
+            : { ids: seleccionados };
+
         try {
             await fetch(`https://media.authormedia.org${endpoint}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ids: seleccionados }),
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
             });
 
             setSeleccionados([]);
+            setShadeSeleccionadoPorId({});
             setRefreshKey((prev) => prev + 1);
-
         } catch (err) {
             console.error("Error al enviar acción:", err);
         }
     };
+
 
 
     return (
@@ -195,6 +208,26 @@ function ApproveImages() {
                 seleccionados={seleccionados}
                 toggleSeleccion={toggleSeleccion}
                 toggleSeleccionarTodos={toggleSeleccionarTodos}
+                extraColumns={[
+                    {
+                        header: "Shade",
+                        render: (img) => (
+                            <div className="form-check form-switch">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    checked={shadeSeleccionadoPorId[img.id] || false}
+                                    onChange={(e) =>
+                                        setShadeSeleccionadoPorId((prev) => ({
+                                            ...prev,
+                                            [img.id]: e.target.checked
+                                        }))
+                                    }
+                                />
+                            </div>
+                        ),
+                    }
+                ]}
             />
         </div>
     );
