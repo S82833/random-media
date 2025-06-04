@@ -29,7 +29,11 @@ function App() {
     return <Login onLogin={setUsuario} />;
   }
 
-  const isAdmin = usuario.email === 'admin@talentedgeperu.com';
+  const isAdmin = usuario.email === 'admin@talentedgeperu.com'
+                || usuario.email === 'jorge@talentedgeperu.com'
+                || usuario.email === 'piero@talentedgeperu.com'
+                || usuario.email === 'sebastian.s@talentedgeperu.com'
+                || usuario.email === 'stefano.talentedgeperu.com';
 
   return (
     <Router>
