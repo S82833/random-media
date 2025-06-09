@@ -210,7 +210,31 @@ function ApproveImages() {
                 toggleSeleccionarTodos={toggleSeleccionarTodos}
                 extraColumns={[
                     {
-                        header: "Shade",
+                        header: (
+                            <div className="d-flex align-items-center gap-2">
+                                <label className="form-check-label mb-0" htmlFor="shadeHeader">
+                                    Shade
+                                </label>
+                                <input
+                                    id="shadeHeader"
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    onChange={(e) => {
+                                        const checked = e.target.checked;
+                                        const nuevosShades = {};
+                                        imagenes.forEach(img => {
+                                            nuevosShades[img.id] = checked;
+                                        });
+                                        setShadeSeleccionadoPorId(prev => ({
+                                            ...prev,
+                                            ...nuevosShades,
+                                        }));
+                                    }}
+                                    checked={imagenes.length > 0 && imagenes.every(img => shadeSeleccionadoPorId[img.id])}
+                                    title="Seleccionar todos los Shade"
+                                />
+                            </div>
+                        ),
                         render: (img) => (
                             <div className="form-check form-switch">
                                 <input
