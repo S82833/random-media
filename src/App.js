@@ -7,6 +7,7 @@ import ImageTable from './pages/ImageTable';
 import ApproveImages from './pages/ApproveImages';
 import PreApproveImages from './pages/PreApproveImages';
 import AssignKeywords from './pages/AssignKeywords'; 
+import Metrics from './pages/Metrics';
 import Navbar from './components/Navbar'; 
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ImageTable />}/>
           {isAdmin && <Route path="/approve_images" element={<ApproveImages />}/>}
+          {isAdmin && <Route path="/metrics" element={<Metrics />} />}
           <Route path="/assign_keywords" element={<AssignKeywords />}/>
           <Route path='/preapprove_images' element={<PreApproveImages />}/>
           <Route path="*" element={<Navigate to="/" />}/>

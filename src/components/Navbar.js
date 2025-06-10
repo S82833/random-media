@@ -36,6 +36,14 @@ function Navbar({ isAdmin, onLogout}) {
                 Assign Keywords
               </Link>
             </li>
+
+            {isAdmin && (
+              <li className="nav-item">
+                <Link className={`nav-link ${location.pathname === "/metrics" ? "active" : ""}`} to="/metrics">
+                  Metrics
+                </Link>
+              </li>
+            )}
           </ul>
           <button className='btn btn-outline-danger' onClick={onLogout}>
             Logout

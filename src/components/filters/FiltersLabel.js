@@ -1,10 +1,20 @@
 import Select from "react-select";
 
-function FiltersLabel({ labelsDisponibles, labelsSeleccionados, setLabelsSeleccionados }) {
+function FiltersLabel({
+  labelsDisponibles,
+  labelSeleccionado,
+  setLabelSeleccionado,
+}) {
   return (
     <>
-      <label>Filtrar por Labels</label>
-      <Select isMulti options={labelsDisponibles} value={labelsSeleccionados} onChange={setLabelsSeleccionados} className="mb-3" />
+      <label>Filtrar por Label</label>
+      <Select
+        options={labelsDisponibles}
+        value={labelSeleccionado}
+        onChange={setLabelSeleccionado}
+        className="mb-3"
+        isClearable
+      />
     </>
   );
 }

@@ -93,7 +93,7 @@ function PreApproveImages() {
     }
         //aprobar o desaprobar
     const handleAccionSeleccionados = async (accion) => {
-    const endpoint = accion === "accept" ? "/api/preapprove/accept" : "/api/approve/reject";
+    const endpoint = accion === "accept" ? "/api/preapprove/accept" : "/api/preapprove/reject";
         try {
             await fetch(`https://media.authormedia.org${endpoint}`, {
             method: "POST",
