@@ -62,8 +62,14 @@ function Metrics(){
                         return { label, value };
                     })
                 );
+                const total = responses.find(item => item.label === "Generadas")?.value ?? 0;
 
-                setMetricas(responses);
+                const responsesConPorcentaje = responses.map((item) => ({
+                ...item,
+                percentage: total > 0 ? (item.value / total) * 100 : 0,
+                }));
+
+                setMetricas(responsesConPorcentaje);
             } catch (error) {
                 console.error("Error al obtener métricas:", error);
             }
@@ -90,6 +96,7 @@ function Metrics(){
                     <MetricCard
                         title={metricas[0].label}
                         value={metricas[0].value ?? 0}
+                        percentage={metricas[0].percentage}
                         bgColor={colores[metricas[0].label]?.bg}
                         textColor={colores[metricas[0].label]?.text}
                     />
@@ -104,6 +111,7 @@ function Metrics(){
                     <MetricCard
                         title={metricas[1].label}
                         value={metricas[1].value ?? 0}
+                        percentage={metricas[1].percentage}
                         bgColor={colores[metricas[1].label]?.bg}
                         textColor={colores[metricas[1].label]?.text}
                     />
@@ -118,6 +126,7 @@ function Metrics(){
                     <MetricCard
                         title={metricas[2].label}
                         value={metricas[2].value ?? 0}
+                        percentage={metricas[2].percentage}
                         bgColor={colores[metricas[2].label]?.bg}
                         textColor={colores[metricas[2].label]?.text}
                     />
@@ -128,6 +137,7 @@ function Metrics(){
                     <MetricCard
                         title={metricas[3].label}
                         value={metricas[3].value ?? 0}
+                        percentage={metricas[3].percentage}
                         bgColor={colores[metricas[3].label]?.bg}
                         textColor={colores[metricas[3].label]?.text}
                     />
@@ -142,6 +152,7 @@ function Metrics(){
                     <MetricCard
                         title={metricas[4].label}
                         value={metricas[4].value ?? 0}
+                        percentage={metricas[4].percentage}
                         bgColor={colores[metricas[4].label]?.bg}
                         textColor={colores[metricas[4].label]?.text}
                     />
@@ -152,6 +163,7 @@ function Metrics(){
                     <MetricCard
                         title={metricas[5].label}
                         value={metricas[5].value ?? 0}
+                        percentage={metricas[5].percentage}
                         bgColor={colores[metricas[5].label]?.bg}
                         textColor={colores[metricas[5].label]?.text}
                     />
