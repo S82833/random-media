@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { useFilteredImages } from "../hooks/useFilteredImages";
 import FiltersLabelKeywords from "../components/filters/FiltersLabelKeywords";
 import ImageTableView from "../components/ImageTableView";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 function ImageTable() {
     const [page, setPage] = useState(1);
@@ -19,8 +21,7 @@ function ImageTable() {
     const [seleccionados, setSeleccionados] = useState([]);
     const [refreshKey, setRefreshKey] = useState(0);
 
-
-    //cargar labels
+        //cargar labels
     useEffect(() => {
         const url = new URL("https://media.authormedia.org/api/labels");
         url.searchParams.append("deleted", deleted)
@@ -115,6 +116,34 @@ function ImageTable() {
         setRefreshKey((prev) => prev + 1);
     };   
 
+    const handleDownloadZip = async () => {
+        const zip = new JSZip();
+
+        // Filtra las imágenes seleccionadas
+        const imagenesFiltradas = imagenes.filter((img) =>
+            seleccionados.includes(img.id)
+        );
+
+        // Descarga cada imagen y agrégala al zip
+        await Promise.all(
+            imagenesFiltradas.map(async (img, idx) => {
+                try {
+                    const response = await fetch(img.image_url); // Asegúrate de que `img.url` exista y apunte a una imagen
+                    const blob = await response.blob();
+                    const nombre = (img.image_url.split("cdn.midjourney.com/")[1] || `img_${idx}.jpg`).replaceAll("/", "_");
+                    zip.file(nombre, blob);
+                } catch (err) {
+                    console.error("Error descargando:", img.image_url);
+                }
+            })
+        );
+
+        // Genera y descarga el zip
+        zip.generateAsync({ type: "blob" }).then((content) => {
+            saveAs(content, "imagenes_seleccionadas.zip");
+        });
+    };
+
     return (
         <div>
             <FiltersLabelKeywords
@@ -146,6 +175,15 @@ function ImageTable() {
             >
                 {deleted ? "Restaurar Seleccionados" : "Borrar Seleccionados"}
             </button>
+
+            <button
+                className="btn btn-secondary mb-3 ms-3"
+                onClick={handleDownloadZip}
+                disabled={seleccionados.length === 0}
+            >
+                Descargar seleccionados
+            </button>
+
 
             <div className="container">
                 <div className="row align-items-end">
