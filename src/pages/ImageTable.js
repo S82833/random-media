@@ -165,7 +165,6 @@ function ImageTable() {
                 <option key={100} value={100}>100</option>
                 <option key={500} value={500}>500</option>
                 <option key={1000} value={1000}>1000</option>
-                <option key={10000} value={10000}>10000</option>
             </select>
 
             <button
