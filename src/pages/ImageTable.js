@@ -244,6 +244,10 @@ function ImageTable() {
                     {
                         header: "Keywords",
                         render: (img) => (img.keywords ? img.keywords.join(", "): "-")
+                    },
+                    {
+                        header: "View Count",
+                        render: (img) => (img.total_views ? img.total_views: "-")
                     }
                 ]}
             />
