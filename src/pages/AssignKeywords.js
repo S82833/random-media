@@ -25,7 +25,8 @@ function AssignKeywords() {
 
     //cargar labels
     useEffect(() => {
-        fetch("https://media.authormedia.org/api/approve/labels")
+        const url = new URL("https://media.authormedia.org/api/status/labels_keywords")
+        fetch(url.toString())
         .then(response => response.json())
         .then(labelsData => {
             const options = labelsData.map((label) => ({
