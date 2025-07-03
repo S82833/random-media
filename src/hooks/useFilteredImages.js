@@ -1,60 +1,57 @@
 import { useEffect, useState } from "react";
 
-export function useFilteredImages({ page, limit, deleted, filtros, endpoint = "/api/images", refreshKey}) {
+export function useFilteredImages({ limit, deleted, filtros, endpoint = "/api/images", after, refreshKey }) {
   const [imagenes, setImagenes] = useState([]);
-  const [imagesCount, setImagesCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const baseUrl = "https://media.authormedia.org";
-
     const url = new URL(baseUrl + endpoint);
-    const url_count = new URL(baseUrl + endpoint + "_count");
 
-    url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
     url.searchParams.append("deleted", deleted);
-    url_count.searchParams.append("deleted", deleted);
+
+    if (after) {
+      url.searchParams.append("after", after);
+    }
 
     if (filtros.labels?.length) {
-      const joined = filtros.labels.join(",");
-      url.searchParams.append("labels", joined);
-      url_count.searchParams.append("labels", joined);
+      url.searchParams.append("labels", filtros.labels.join(","));
     }
 
     if (filtros.keywords?.length) {
-      const joined = filtros.keywords.join(",");
-      url.searchParams.append("keywords", joined);
-      url_count.searchParams.append("keywords", joined);
+      url.searchParams.append("keywords", filtros.keywords.join(","));
     }
 
     if (filtros.keywords_mode) {
       url.searchParams.append("keywords_mode", filtros.keywords_mode);
-      url_count.searchParams.append("keywords_mode", filtros.keywords_mode);
     }
 
     if (filtros.prompts?.length) {
-      const joined = filtros.prompts.join(",");
-      url.searchParams.append("prompts", joined);
-      url_count.searchParams.append("prompts", joined);
+      url.searchParams.append("prompts", filtros.prompts.join(","));
+    }
+
+    if (filtros.sort_by) {
+      url.searchParams.append("sort_by", filtros.sort_by);
+    }
+
+    if (filtros.sort_direction) {
+      url.searchParams.append("sort_direction", filtros.sort_direction);
     }
 
     setLoading(true);
 
-    Promise.all([
-      fetch(url.toString()).then((res) => res.json()),
-      fetch(url_count.toString()).then((res) => res.json())
-    ])
-      .then(([data, count]) => {
+    fetch(url.toString())
+      .then((res) => res.json())
+      .then((data) => {
         setImagenes(data);
-        setImagesCount(count.count);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Error al obtener imágenes:", err);
         setLoading(false);
       });
-  }, [page, limit, deleted, filtros, endpoint, refreshKey]);
+  }, [after, limit, deleted, filtros, endpoint, refreshKey]);
 
-  return { imagenes, imagesCount, loading };
+  return { imagenes, loading };
 }

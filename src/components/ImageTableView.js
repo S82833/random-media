@@ -1,7 +1,16 @@
 import { useState } from "react";
 import ZoomModal from "./ZoomModal";
 
-function ImageTableView({ imagenes, seleccionados, toggleSeleccion, toggleSeleccionarTodos, extraColumns=[] }) {
+function ImageTableView({ 
+  imagenes, 
+  seleccionados, 
+  toggleSeleccion, 
+  toggleSeleccionarTodos, 
+  extraColumns=[],
+  onSort,              
+  sortBy,               
+  sortDirection          
+}) {
   const [imagenModal, setImagenModal] = useState(null);
   const [zoomed, setZoomed] = useState(false);
     const cerrarModal = () => {
@@ -34,7 +43,19 @@ function ImageTableView({ imagenes, seleccionados, toggleSeleccion, toggleSelecc
               />
             </th>
             {extraColumns.map((col, index) => (
-              <th key={`extra-th-${index}`}>{col.header}</th>
+              <th
+                key={`extra-th-${index}`}
+                onClick={() => col.sortable && onSort?.(col.key)}
+                style={{ cursor: col.sortable ? "pointer" : "default" }}
+                className="text-center align-middle"
+              >
+                {col.header}
+                {col.sortable && sortBy === col.key && (
+                  <span className="ms-1">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
+              </th>
             ))}
           </tr>
         </thead>
