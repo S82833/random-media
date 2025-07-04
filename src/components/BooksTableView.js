@@ -6,7 +6,7 @@ function BooksTableView({ assigneeSeleccionado }) {
     const [sortDirection, setSortDirection] = useState("asc");
 
   useEffect(() => {
-    const url = new URL("http://127.0.0.1:8000/api/book_summary");
+    const url = new URL("https://media.authormedia.org/api/book_summary");
     if (assigneeSeleccionado?.value) {
       url.searchParams.set("assignee", assigneeSeleccionado.value);
     }

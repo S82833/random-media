@@ -8,7 +8,7 @@ function BooksData() {
 
     //Cargar asignees desde supabase
     useEffect(() =>{
-        const url = new URL("http://127.0.0.1:8000/api/assignees");
+        const url = new URL("https://media.authormedia.org/api/assignees");
         fetch(url.toString())
             .then(res => res.json())
             .then(data => {
