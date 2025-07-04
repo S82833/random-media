@@ -8,6 +8,7 @@ import ApproveImages from './pages/ApproveImages';
 import PreApproveImages from './pages/PreApproveImages';
 import AssignKeywords from './pages/AssignKeywords'; 
 import Metrics from './pages/Metrics';
+import BooksData from './pages/BooksData';
 import Navbar from './components/Navbar'; 
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
           {isAdmin && <Route path="/metrics" element={<Metrics />} />}
           <Route path="/assign_keywords" element={<AssignKeywords />}/>
           <Route path='/preapprove_images' element={<PreApproveImages />}/>
+          <Route path="/books_data" element={<BooksData />} />
           <Route path="*" element={<Navigate to="/" />}/>
         </Routes>
       </div>

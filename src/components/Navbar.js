@@ -44,6 +44,12 @@ function Navbar({ isAdmin, onLogout}) {
                 </Link>
               </li>
             )}
+
+            <li className="nav-item">
+              <Link className={`nav-link ${location.pathname === "/books_data" ? "active" : ""}`} to="/books_data">
+                Books
+              </Link>
+            </li>
           </ul>
           <button className='btn btn-outline-danger' onClick={onLogout}>
             Logout
