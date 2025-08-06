@@ -9,6 +9,8 @@ export const useAssignKeywords = ({ page, limit, filtros, refreshKey }) => {
     const url = new URL("https://media.authormedia.org/api/assign_keywords/images");
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
+    
+    url.searchParams.append("status", "preapproved");
 
     const labelId = filtros.labels?.[0];
     const promptId = filtros.prompts?.[0];
@@ -45,6 +47,8 @@ export const useAssignKeywords = ({ page, limit, filtros, refreshKey }) => {
     if (typeof promptId === "number") {
         countUrl.searchParams.append("id_prompt", promptId);
     }
+    
+    countUrl.searchParams.append("status", "preapproved");
 
 
     fetch(countUrl.toString())
