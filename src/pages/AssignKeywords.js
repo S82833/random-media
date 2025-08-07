@@ -46,7 +46,7 @@ function AssignKeywords() {
         if (labelsSeleccionados) {
             url.searchParams.append("labels", labelsSeleccionados.label);
         }
-        url.searchParams.append("status", "approved")
+        url.searchParams.append("status", "preapproved")
         fetch(url.toString())
         .then(response => response.json())
         .then(promptsData => {
