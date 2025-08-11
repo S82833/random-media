@@ -51,8 +51,8 @@ function ApproveImages() {
         .then(promptsData => {
             const options = promptsData.map(prompt => ({
                 value: prompt.id,
-                label: prompt.content.length > 60
-                ? prompt.content.slice(0, 60) + "..."
+                label: prompt.content.length > 100
+                ? prompt.content.slice(0, 100) + "..."
                 : prompt.content,
             }));
             setPromptsDisponibles(options);
