@@ -47,8 +47,8 @@ function PreApproveImages() {
         .then(promptsData => {
             const options = promptsData.map(prompt => ({
                 value: prompt.id,
-                label: prompt.content.length > 100
-                ? prompt.content.slice(0, 100) + "..."
+                label: prompt.content.length > 170
+                ? prompt.content.slice(0, 170) + "..."
                 : prompt.content,
             }));
             setPromptsDisponibles(options);
