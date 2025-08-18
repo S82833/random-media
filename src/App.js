@@ -36,7 +36,7 @@ function App() {
                 || usuario.email === 'piero@talentedgeperu.com'
                 || usuario.email === 'sebastian.s@talentedgeperu.com'
                 || usuario.email === 'stefano@talentedgeperu.com'
-                || usuario.email === 'oscar@talentedgeperu.com';
+                || usuario.email === 'piero.f@talentedgeperu.com';
 
   return (
     <Router>
