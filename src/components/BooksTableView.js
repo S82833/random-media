@@ -96,7 +96,16 @@ function BooksTableView({ assigneeSeleccionado }) {
               <td>{row.label}</td>
               <td className="text-center align-middle">{row.base_images}</td>
               <td className="text-center align-middle">{row.total_variants}</td>
-              <td className="text-center align-middle">{row.used_variants}</td>
+              <td className="text-center align-middle"
+                style={{
+                  color:
+                    row.used_variants > row.total_variants ? "red" : "inherit",
+                  fontWeight:
+                    row.used_variants > row.total_variants ? "bold" : "normal",
+                }}
+              >
+              {row.used_variants}
+              </td>
               <td className="text-center align-middle">
                 {row.last_created_at
                   ? new Date(row.last_created_at).toLocaleDateString()
