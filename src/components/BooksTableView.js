@@ -4,6 +4,9 @@ function BooksTableView({ assigneeSeleccionado }) {
     const [libros, setLibros] = useState([]);
     const [sortBy, setSortBy] = useState(null);
     const [sortDirection, setSortDirection] = useState("asc");
+    const [editingRowId, setEditingRowId] = useState(null);
+    const [newAssignee, setNewAssignee] = useState("");
+
 
   useEffect(() => {
     const url = new URL("https://media.authormedia.org/api/book_summary");
@@ -36,6 +39,36 @@ function BooksTableView({ assigneeSeleccionado }) {
             setSortDirection("asc");
         }
     };
+
+    const handleSave = async (id) => {
+      // Actualizar estado local
+      setLibros((prev) =>
+        prev.map((libro) =>
+          libro.id === id ? { ...libro, assignee: newAssignee } : libro
+        )
+      );
+
+      // Reset edición
+      setEditingRowId(null);
+
+      try {
+        const res = await fetch('https://media.authormedia.org/api/book_summary/update_assignee', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({id: editingRowId , assignee: newAssignee }),
+        });
+
+        if (!res.ok) {
+          console.error("Error al actualizar en backend");
+          // opcional: revertir el cambio local
+        }
+      } catch (err) {
+        console.error("Error de red:", err);
+      }
+    };
+
 
     const librosOrdenados = [...libros].sort((a, b) => {
         if (!sortBy) return 0;
@@ -96,22 +129,51 @@ function BooksTableView({ assigneeSeleccionado }) {
               <td>{row.label}</td>
               <td className="text-center align-middle">{row.base_images}</td>
               <td className="text-center align-middle">{row.total_variants}</td>
-              <td className="text-center align-middle"
+              <td
+                className="text-center align-middle"
                 style={{
                   color:
-                    row.used_variants > row.total_variants ? "red" : "inherit",
+                    row.used_variants > row.total_variants
+                      ? "red"
+                      : row.total_variants - row.used_variants < 50
+                      ? "orange"
+                      : "inherit",
                   fontWeight:
-                    row.used_variants > row.total_variants ? "bold" : "normal",
+                    row.used_variants > row.total_variants ||
+                    row.total_variants - row.used_variants < 50
+                      ? "bold"
+                      : "normal",
                 }}
               >
-              {row.used_variants}
+                {row.used_variants}
               </td>
               <td className="text-center align-middle">
                 {row.last_created_at
                   ? new Date(row.last_created_at).toLocaleDateString()
                   : "—"}
               </td>
-              <td className="text-center align-middle">{row.assignee}</td>
+              <td
+                className="text-center align-middle"
+                onDoubleClick={() => {
+                  setEditingRowId(row.id);
+                  setNewAssignee(row.assignee || "");
+                }}
+              >
+                {editingRowId === row.id ? (
+                  <input
+                    type="text"
+                    value={newAssignee}
+                    onChange={(e) => setNewAssignee(e.target.value)}
+                    onBlur={() => handleSave(row.id)} // al salir del input
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSave(row.id);
+                    }}
+                    autoFocus
+                  />
+                ) : (
+                  row.assignee
+                )}
+            </td>
             </tr>
           ))}
         </tbody>
