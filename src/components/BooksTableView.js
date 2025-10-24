@@ -135,7 +135,7 @@ function BooksTableView({ assigneeSeleccionado }) {
                   color:
                     row.used_variants > row.total_variants
                       ? "red"
-                      : row.total_variants - row.used_variants < 50
+                      : row.total_variants - row.used_variants < 300
                       ? "orange"
                       : "inherit",
                   fontWeight:
