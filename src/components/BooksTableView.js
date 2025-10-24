@@ -140,7 +140,7 @@ function BooksTableView({ assigneeSeleccionado }) {
                       : "inherit",
                   fontWeight:
                     row.used_variants > row.total_variants ||
-                    row.total_variants - row.used_variants < 50
+                    row.total_variants - row.used_variants < 300
                       ? "bold"
                       : "normal",
                 }}
