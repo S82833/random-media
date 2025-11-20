@@ -22,8 +22,8 @@ function ImageTable() {
     const [seleccionados, setSeleccionados] = useState([]);
     const [refreshKey, setRefreshKey] = useState(0);
 
-    const [sortBy, setSortBy] = useState(null);
-    const [sortDirection, setSortDirection] = useState("desc");
+    const [sortBy, setSortBy] = useState("created_at");
+    const [sortDirection, setSortDirection] = useState("asc");
 
     const [after, setAfter] = useState(null); // CURSOR
 
@@ -283,7 +283,7 @@ function ImageTable() {
                     {
                         header: "Created At",
                         key: "created_at",
-                        sortable: true,
+                        sortable: false,
                         render: (img) => new Date(img.created_at).toLocaleDateString()
                     },
                 ]}
