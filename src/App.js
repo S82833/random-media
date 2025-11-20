@@ -6,10 +6,10 @@ import Login from './pages/Login';
 import ImageTable from './pages/ImageTable';
 import ApproveImages from './pages/ApproveImages';
 import PreApproveImages from './pages/PreApproveImages';
-import AssignKeywords from './pages/AssignKeywords'; 
+import AssignKeywords from './pages/AssignKeywords';
 import Metrics from './pages/Metrics';
 import BooksData from './pages/BooksData';
-import Navbar from './components/Navbar'; 
+import Navbar from './components/Navbar';
 
 function App() {
   const [usuario, setUsuario] = useState(null);
@@ -32,24 +32,25 @@ function App() {
   }
 
   const isAdmin = usuario.email === 'admin@talentedgeperu.com'
-                || usuario.email === 'jorge@talentedgeperu.com'
-                || usuario.email === 'piero@talentedgeperu.com'
-                || usuario.email === 'sebastian.s@talentedgeperu.com'
-                || usuario.email === 'stefano@talentedgeperu.com'
-                || usuario.email === 'piero.f@talentedgeperu.com';
+    || usuario.email === 'jorge@talentedgeperu.com'
+    || usuario.email === 'sebastian.s@talentedgeperu.com'
+    || usuario.email === 'stefano@talentedgeperu.com'
+    || usuario.email === 'piero.f@talentedgeperu.com'
+    || usuario.email === 'larissa@talentedgeperu.com'
+    || usuario.email === 'diego@talentedgeperu.com';
 
   return (
     <Router>
       <div className="container mt-4">
         <Navbar isAdmin={isAdmin} onLogout={handleLogout} />
         <Routes>
-          <Route path="/" element={<ImageTable />}/>
-          {isAdmin && <Route path="/approve_images" element={<ApproveImages />}/>}
+          <Route path="/" element={<ImageTable />} />
+          {isAdmin && <Route path="/approve_images" element={<ApproveImages />} />}
           {isAdmin && <Route path="/metrics" element={<Metrics />} />}
-          <Route path="/assign_keywords" element={<AssignKeywords />}/>
-          <Route path='/preapprove_images' element={<PreApproveImages />}/>
+          <Route path="/assign_keywords" element={<AssignKeywords />} />
+          <Route path='/preapprove_images' element={<PreApproveImages />} />
           <Route path="/books_data" element={<BooksData />} />
-          <Route path="*" element={<Navigate to="/" />}/>
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
     </Router>
