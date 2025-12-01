@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { usePreApproveImages } from "../hooks/usePreApproveImages";
 import FiltersLabelPrompt from "../components/filters/FiltersLabelPrompts";
 import ImageTableView from "../components/ImageTableView";
+import { supabase } from "../supabaseClient";
+
 
 function PreApproveImages() {
     const [page, setPage] = useState(1);
@@ -23,18 +25,18 @@ function PreApproveImages() {
         const url = new URL("https://media.authormedia.org/api/status/labels")
         url.searchParams.append("status", "pending")
         fetch(url.toString())
-        .then(response => response.json())
-        .then(labelsData => {
-            const options = labelsData.map((label) => ({
-                value: label.id,
-                label: label.name
-            }));
-            setLabelsDisponibles(options);
-        })
-        .catch(error => {
-            console.log("Error al obtener labels", error)
-        })
-    },[])
+            .then(response => response.json())
+            .then(labelsData => {
+                const options = labelsData.map((label) => ({
+                    value: label.id,
+                    label: label.name
+                }));
+                setLabelsDisponibles(options);
+            })
+            .catch(error => {
+                console.log("Error al obtener labels", error)
+            })
+    }, [])
 
     //cargar prompts
     useEffect(() => {
@@ -43,20 +45,20 @@ function PreApproveImages() {
             url.searchParams.append("labels", labelsSeleccionados.label);
         }
         fetch(url.toString())
-        .then(response => response.json())
-        .then(promptsData => {
-            const options = promptsData.map(prompt => ({
-                value: prompt.id,
-                label: prompt.content.length > 170
-                ? prompt.content.slice(0, 170) + "..."
-                : prompt.content,
-            }));
-            setPromptsDisponibles(options);
-        })
+            .then(response => response.json())
+            .then(promptsData => {
+                const options = promptsData.map(prompt => ({
+                    value: prompt.id,
+                    label: prompt.content.length > 170
+                        ? prompt.content.slice(0, 170) + "..."
+                        : prompt.content,
+                }));
+                setPromptsDisponibles(options);
+            })
 
-        .catch(error => {
-            console.log("Error al obtener keywords", error)
-        })
+            .catch(error => {
+                console.log("Error al obtener keywords", error)
+            })
     }, [labelsSeleccionados])
 
     //hook para obtener imagenes
@@ -73,43 +75,55 @@ function PreApproveImages() {
         refreshKey,
     })
 
-     //manejar una seleccion
+    //manejar una seleccion
     const toggleSeleccion = (id) => {
         setSeleccionados(prev =>
             prev.includes(id)
-            ? prev.filter(i => i !== id)
-            :[...prev, id]
+                ? prev.filter(i => i !== id)
+                : [...prev, id]
         );
     }
 
     //manejar todas las selecciones
-    const toggleSeleccionarTodos = () =>{
+    const toggleSeleccionarTodos = () => {
         const idsFiltrados = imagenes.map(img => img.id);
         const todosSeleccionados = idsFiltrados.every(id => seleccionados.includes(id));
 
-        if (todosSeleccionados){
+        if (todosSeleccionados) {
             setSeleccionados(prev => prev.filter(id => !idsFiltrados.includes(id)));
         } else {
             setSeleccionados(prev => [...new Set([...prev, ...idsFiltrados])])
         }
     }
-        //aprobar o desaprobar
+    //aprobar o desaprobar
     const handleAccionSeleccionados = async (accion) => {
-    const endpoint = accion === "accept" ? "/api/preapprove/accept" : "/api/preapprove/reject";
+        const endpoint =
+            accion === "accept" ? "/api/preapprove/accept" : "/api/preapprove/reject";
+
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const email = user?.email || null;
+
             await fetch(`https://media.authormedia.org${endpoint}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ids: seleccionados }),
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ids: seleccionados,
+                    user_email: email,
+                    ids_with_shade: []  // si aplica
+                }),
             });
 
             setSeleccionados([]);
-            setRefreshKey((prev) => prev + 1);
+            setRefreshKey(prev => prev + 1);
 
         } catch (err) {
             console.error("Error al enviar acción:", err);
         }
     };
+
 
 
     return (
