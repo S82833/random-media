@@ -26,18 +26,18 @@ function ApproveImages() {
         const url = new URL("https://media.authormedia.org/api/status/labels")
         url.searchParams.append("status", "preapproved")
         fetch(url.toString())
-        .then(response => response.json())
-        .then(labelsData => {
-            const options = labelsData.map((label) => ({
-                value: label.id,
-                label: label.name
-            }));
-            setLabelsDisponibles(options);
-        })
-        .catch(error => {
-            console.log("Error al obtener labels", error)
-        })
-    },[])
+            .then(response => response.json())
+            .then(labelsData => {
+                const options = labelsData.map((label) => ({
+                    value: label.id,
+                    label: label.name
+                }));
+                setLabelsDisponibles(options);
+            })
+            .catch(error => {
+                console.log("Error al obtener labels", error)
+            })
+    }, [])
 
     //cargar prompts
     useEffect(() => {
@@ -47,20 +47,20 @@ function ApproveImages() {
         }
         url.searchParams.append("status", "preapproved")
         fetch(url.toString())
-        .then(response => response.json())
-        .then(promptsData => {
-            const options = promptsData.map(prompt => ({
-                value: prompt.id,
-                label: prompt.content.length > 170
-                ? prompt.content.slice(0, 170) + "..."
-                : prompt.content,
-            }));
-            setPromptsDisponibles(options);
-        })
+            .then(response => response.json())
+            .then(promptsData => {
+                const options = promptsData.map(prompt => ({
+                    value: prompt.id,
+                    label: prompt.content.length > 170
+                        ? prompt.content.slice(0, 170) + "..."
+                        : prompt.content,
+                }));
+                setPromptsDisponibles(options);
+            })
 
-        .catch(error => {
-            console.log("Error al obtener keywords", error)
-        })
+            .catch(error => {
+                console.log("Error al obtener keywords", error)
+            })
     }, [labelsSeleccionados])
 
     //hook para obtener imagenes
@@ -68,7 +68,7 @@ function ApproveImages() {
         labels: labelsSeleccionados ? [labelsSeleccionados.value] : [],
         prompts: promptsSeleccionados ? [promptsSeleccionados.value] : [],
     }), [labelsSeleccionados, promptsSeleccionados]);
-    
+
     const { imagenes, imagesCount, loading } = useApproveImages({
         page,
         limit,
@@ -76,39 +76,46 @@ function ApproveImages() {
         refreshKey,
     })
 
-     //manejar una seleccion
+    //manejar una seleccion
     const toggleSeleccion = (id) => {
         setSeleccionados(prev =>
             prev.includes(id)
-            ? prev.filter(i => i !== id)
-            :[...prev, id]
+                ? prev.filter(i => i !== id)
+                : [...prev, id]
         );
     }
 
     //manejar todas las selecciones
-    const toggleSeleccionarTodos = () =>{
+    const toggleSeleccionarTodos = () => {
         const idsFiltrados = imagenes.map(img => img.id);
         const todosSeleccionados = idsFiltrados.every(id => seleccionados.includes(id));
 
-        if (todosSeleccionados){
+        if (todosSeleccionados) {
             setSeleccionados(prev => prev.filter(id => !idsFiltrados.includes(id)));
         } else {
             setSeleccionados(prev => [...new Set([...prev, ...idsFiltrados])])
         }
     }
-        //aprobar o desaprobar
+    //aprobar o desaprobar
     const handleAccionSeleccionados = async (accion) => {
-        const endpoint = accion === "accept" ? "/api/approve/accept" : "/api/approve/reject";
-        
-        // solo si estamos aprobando
-        const payload = accion === "accept"
-            ? {
-                ids: seleccionados,
-                ids_with_shade: seleccionados.filter(id => shadeSeleccionadoPorId[id])
-            }
-            : { ids: seleccionados };
+        const endpoint =
+            accion === "accept" ? "/api/approve/accept" : "/api/approve/reject";
 
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const email = user?.email || null;
+            // solo si estamos aprobando
+            const payload = accion === "accept"
+                ? {
+                    ids: seleccionados,
+                    ids_with_shade: seleccionados.filter(id => shadeSeleccionadoPorId[id]),
+                    user_email: email
+                }
+                : {
+                    ids: seleccionados,
+                    user_email: email
+                };
+
             await fetch(`https://media.authormedia.org${endpoint}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
