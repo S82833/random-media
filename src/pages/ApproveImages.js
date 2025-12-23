@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useApproveImages } from "../hooks/useApproveImages";
 import FiltersLabelPrompt from "../components/filters/FiltersLabelPrompts";
 import ImageTableView from "../components/ImageTableView";
+import { supabase } from "../supabaseClient";
 
 function ApproveImages() {
     const [page, setPage] = useState(1);
