@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 
 function BooksTableView({ assigneeSeleccionado }) {
-    const [libros, setLibros] = useState([]);
-    const [sortBy, setSortBy] = useState(null);
-    const [sortDirection, setSortDirection] = useState("asc");
-    const [editingRowId, setEditingRowId] = useState(null);
-    const [newAssignee, setNewAssignee] = useState("");
+  const [libros, setLibros] = useState([]);
+  const [sortBy, setSortBy] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [editingRowId, setEditingRowId] = useState(null);
+  const [newAssignee, setNewAssignee] = useState("");
 
 
   useEffect(() => {
@@ -30,72 +30,72 @@ function BooksTableView({ assigneeSeleccionado }) {
       });
   }, [assigneeSeleccionado]);
 
-    const handleSort = (campo) => {
-        if (sortBy === campo) {
-            // Si ya está ordenando por ese campo, invierte la dirección
-            setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-        } else {
-            setSortBy(campo);
-            setSortDirection("asc");
-        }
-    };
+  const handleSort = (campo) => {
+    if (sortBy === campo) {
+      // Si ya está ordenando por ese campo, invierte la dirección
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(campo);
+      setSortDirection("asc");
+    }
+  };
 
-    const handleSave = async (id) => {
-      // Actualizar estado local
-      setLibros((prev) =>
-        prev.map((libro) =>
-          libro.id === id ? { ...libro, assignee: newAssignee } : libro
-        )
-      );
+  const handleSave = async (id) => {
+    // Actualizar estado local
+    setLibros((prev) =>
+      prev.map((libro) =>
+        libro.id === id ? { ...libro, assignee: newAssignee } : libro
+      )
+    );
 
-      // Reset edición
-      setEditingRowId(null);
+    // Reset edición
+    setEditingRowId(null);
 
-      try {
-        const res = await fetch('https://media.authormedia.org/api/book_summary/update_assignee', {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({id: editingRowId , assignee: newAssignee }),
-        });
+    try {
+      const res = await fetch('https://media.authormedia.org/api/book_summary/update_assignee', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: editingRowId, assignee: newAssignee }),
+      });
 
-        if (!res.ok) {
-          console.error("Error al actualizar en backend");
-          // opcional: revertir el cambio local
-        }
-      } catch (err) {
-        console.error("Error de red:", err);
+      if (!res.ok) {
+        console.error("Error al actualizar en backend");
+        // opcional: revertir el cambio local
       }
-    };
+    } catch (err) {
+      console.error("Error de red:", err);
+    }
+  };
 
 
-    const librosOrdenados = [...libros].sort((a, b) => {
-        if (!sortBy) return 0;
+  const librosOrdenados = [...libros].sort((a, b) => {
+    if (!sortBy) return 0;
 
-        const aVal = a[sortBy];
-        const bVal = b[sortBy];
+    const aVal = a[sortBy];
+    const bVal = b[sortBy];
 
-        if (aVal === null || aVal === undefined) return 1;
-        if (bVal === null || bVal === undefined) return -1;
+    if (aVal === null || aVal === undefined) return 1;
+    if (bVal === null || bVal === undefined) return -1;
 
-        // Si es string (ej. label), usar localeCompare
-        if (typeof aVal === "string" && typeof bVal === "string") {
-            return sortDirection === "asc"
-            ? aVal.localeCompare(bVal)
-            : bVal.localeCompare(aVal);
-        }
+    // Si es string (ej. label), usar localeCompare
+    if (typeof aVal === "string" && typeof bVal === "string") {
+      return sortDirection === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    }
 
-        // Si es fecha (última creación)
-        if (sortBy === "last_created_at") {
-            return sortDirection === "asc"
-            ? new Date(aVal) - new Date(bVal)
-            : new Date(bVal) - new Date(aVal);
-        }
+    // Si es fecha (última creación)
+    if (sortBy === "last_created_at") {
+      return sortDirection === "asc"
+        ? new Date(aVal) - new Date(bVal)
+        : new Date(bVal) - new Date(aVal);
+    }
 
-        // Para números (base_images, used_variants, etc.)
-        return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
-    });
+    // Para números (base_images, used_variants, etc.)
+    return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+  });
 
 
 
@@ -106,21 +106,25 @@ function BooksTableView({ assigneeSeleccionado }) {
         <thead>
           <tr>
             <th onClick={() => handleSort("label")} style={{ cursor: "pointer" }}>
-            Label {sortBy === "label" && (sortDirection === "asc" ? "▲" : "▼")}
+              Label {sortBy === "label" && (sortDirection === "asc" ? "▲" : "▼")}
             </th>
             <th onClick={() => handleSort("base_images")} style={{ cursor: "pointer" }}>
-            Imágenes Base {sortBy === "base_images" && (sortDirection === "asc" ? "▲" : "▼")}
+              Imágenes Base {sortBy === "base_images" && (sortDirection === "asc" ? "▲" : "▼")}
             </th>
             <th onClick={() => handleSort("total_variants")} style={{ cursor: "pointer" }}>
-            Variaciones {sortBy === "total_variants" && (sortDirection === "asc" ? "▲" : "▼")}
+              Variaciones {sortBy === "total_variants" && (sortDirection === "asc" ? "▲" : "▼")}
             </th>
             <th onClick={() => handleSort("used_variants")} style={{ cursor: "pointer" }}>
-            Usadas {sortBy === "used_variants" && (sortDirection === "asc" ? "▲" : "▼")}
+              Usadas {sortBy === "used_variants" && (sortDirection === "asc" ? "▲" : "▼")}
             </th>
             <th onClick={() => handleSort("last_created_at")} style={{ cursor: "pointer" }}>
-            Última Creación {sortBy === "last_created_at" && (sortDirection === "asc" ? "▲" : "▼")}
+              Última Creación {sortBy === "last_created_at" && (sortDirection === "asc" ? "▲" : "▼")}
             </th>
             <th className="text-center">Assignee</th>
+            <th onClick={() => handleSort("images_zero_uses")} style={{ cursor: "pointer" }}>
+              Images Without Use {sortBy === "last_created_at" && (sortDirection === "asc" ? "▲" : "▼")}
+            </th>
+            <th className="text-center">Deliverables</th>
           </tr>
         </thead>
         <tbody>
@@ -136,11 +140,11 @@ function BooksTableView({ assigneeSeleccionado }) {
                     row.used_variants > row.total_variants
                       ? "red"
                       : row.total_variants - row.used_variants < 300
-                      ? "orange"
-                      : "inherit",
+                        ? "orange"
+                        : "inherit",
                   fontWeight:
                     row.used_variants > row.total_variants ||
-                    row.total_variants - row.used_variants < 300
+                      row.total_variants - row.used_variants < 300
                       ? "bold"
                       : "normal",
                 }}
@@ -173,7 +177,7 @@ function BooksTableView({ assigneeSeleccionado }) {
                 ) : (
                   row.assignee
                 )}
-            </td>
+              </td>
             </tr>
           ))}
         </tbody>
