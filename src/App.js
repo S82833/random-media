@@ -11,6 +11,7 @@ import Metrics from "./pages/Metrics";
 import BooksData from "./pages/BooksData";
 import Navbar from "./components/Navbar";
 import PublicImages from "./pages/PublicImages";
+import ImagesStatusMetrics from "./pages/ImagesStatusMetrics";
 
 function App() {
   const [usuario, setUsuario] = useState(null);
@@ -57,6 +58,7 @@ function App() {
           {usuario && <Route path="/assign_keywords" element={<AssignKeywords />} />}
           {usuario && <Route path="/preapprove_images" element={<PreApproveImages />} />}
           {usuario && <Route path="/books_data" element={<BooksData />} />}
+          {usuario && <Route path="/images_metrics" element={<ImagesStatusMetrics />} />}
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

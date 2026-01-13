@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 
-function Navbar({ isAdmin, onLogout}) {
+function Navbar({ isAdmin, onLogout }) {
   const location = useLocation();
 
   return (
@@ -50,6 +50,14 @@ function Navbar({ isAdmin, onLogout}) {
                 Books
               </Link>
             </li>
+
+            {isAdmin && (
+              <li className="nav-item">
+                <Link className={`nav-link ${location.pathname === "/images_metrics" ? "active" : ""}`} to="/images_metrics">
+                  Images Metrics
+                </Link>
+              </li>
+            )}
           </ul>
           <button className='btn btn-outline-danger' onClick={onLogout}>
             Logout
