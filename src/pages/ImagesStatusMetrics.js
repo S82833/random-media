@@ -90,6 +90,12 @@ function ImagesStatusMetrics() {
                         <th onClick={() => toggleSort("rejected_count")} style={{ cursor: "pointer" }}>
                             Rejected
                         </th>
+                        <th onClick={() => toggleSort("rejected_after_preapprove_count")} style={{ cursor: "pointer" }}>
+                            Failures
+                        </th>
+                        <th onClick={() => toggleSort("rejected_after_preapprove_ratio")} style={{ cursor: "pointer" }}>
+                            Failures %
+                        </th>
                         <th onClick={() => toggleSort("total")} style={{ cursor: "pointer" }}>
                             Total
                         </th>
@@ -98,11 +104,22 @@ function ImagesStatusMetrics() {
                 <tbody>
                     {processed.map(row => (
                         <tr key={row.user_email}>
-                            <td>{row.user_email}</td>
+                            <td
+                                style={{ cursor: "pointer", textDecoration: "underline" }}
+                                onClick={() =>
+                                    setSelectedUser(prev =>
+                                        prev === row.user_email ? "" : row.user_email
+                                    )
+                                }
+                            >
+                                {row.user_email}
+                            </td>
                             <td>{row.preapproved_count}</td>
                             <td>{row.prerejected_count}</td>
                             <td>{row.approved_count}</td>
                             <td>{row.rejected_count}</td>
+                            <td>{row.rejected_after_preapprove_count}</td>
+                            <td>{(row.rejected_after_preapprove_ratio * 100).toFixed(2)}%</td>
                             <td className="fw-bold">{row.total}</td>
                         </tr>
                     ))}
