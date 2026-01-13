@@ -23,7 +23,7 @@ function ImageTable() {
     const [refreshKey, setRefreshKey] = useState(0);
 
     const [sortBy, setSortBy] = useState("created_at");
-    const [sortDirection, setSortDirection] = useState("asc");
+    const [sortDirection, setSortDirection] = useState("desc");
 
     const [after, setAfter] = useState(null); // CURSOR
 
@@ -241,8 +241,8 @@ function ImageTable() {
                         <span className="me-2">Cargando...</span>
                     ) : (
                         <span className="me-2">
-                        
-                        Página {vistasHastaAhora} de {Math.ceil(totalCount / limit)} | {totalCount}
+
+                            Página {vistasHastaAhora} de {Math.ceil(totalCount / limit)} | {totalCount}
                         </span>
                     )}
                 </div>
