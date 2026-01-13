@@ -109,7 +109,7 @@ function ImageTable() {
     };
 
     const toggleSeleccionarTodos = () => {
-        const idsFiltrados = imagenes.map(img => img.id);
+        const idsFiltrados = imagenes.map(img => img.image_id);
         const todosSeleccionados = idsFiltrados.every(id => seleccionados.includes(id));
 
         if (todosSeleccionados) {
@@ -133,7 +133,7 @@ function ImageTable() {
     const handleDownloadZip = async () => {
         const zip = new JSZip();
         const imagenesFiltradas = imagenes.filter((img) =>
-            seleccionados.includes(img.id)
+            seleccionados.includes(img.image_id)
         );
 
         await Promise.all(

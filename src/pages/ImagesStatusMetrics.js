@@ -1,8 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
+import ZoomModal from "../components/ZoomModal";
+
 
 function ImagesStatusMetrics() {
     const [stats, setStats] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [failedImages, setFailedImages] = useState([]);
+    const [loadingFailed, setLoadingFailed] = useState(false);
+    const [zoomImageUrl, setZoomImageUrl] = useState(null);
+
+
 
     const [selectedUser, setSelectedUser] = useState("");
     const [sortKey, setSortKey] = useState("total");
@@ -16,6 +23,22 @@ function ImagesStatusMetrics() {
             .catch(err => console.error("Error loading stats", err))
             .finally(() => setLoading(false));
     }, []);
+
+    useEffect(() => {
+        if (!selectedUser) {
+            setFailedImages([]);
+            return;
+        }
+
+        setLoadingFailed(true);
+        fetch(`https://media.authormedia.org/api/images/failed?user_email=${encodeURIComponent(selectedUser)}`)
+            .then(res => res.json())
+            .then(data => setFailedImages(data || []))
+            .catch(err => console.error("Error loading failed images", err))
+            .finally(() => setLoadingFailed(false));
+
+    }, [selectedUser]);
+
 
     const users = useMemo(() => {
         return stats.map(s => s.user_email).filter(Boolean).sort();
@@ -74,8 +97,8 @@ function ImagesStatusMetrics() {
 
             {loading && <div className="alert alert-info">Cargando métricas...</div>}
 
-            <table className="table table-bordered table-hover mt-3">
-                <thead className="table-light">
+            <table className="table table-bordered table-striped table-hover mt-3">
+                <thead>
                     <tr>
                         <th>User</th>
                         <th onClick={() => toggleSort("preapproved_count")} style={{ cursor: "pointer" }}>
@@ -125,6 +148,59 @@ function ImagesStatusMetrics() {
                     ))}
                 </tbody>
             </table>
+            {selectedUser && (
+                <div className="mt-5">
+                    <h4>Failed images</h4>
+
+                    {loadingFailed && (
+                        <div className="alert alert-info">Loading failed images...</div>
+                    )}
+
+                    {!loadingFailed && failedImages.length === 0 && (
+                        <div className="alert alert-secondary">No failed images found.</div>
+                    )}
+
+                    {failedImages.length > 0 && (
+                        <table className="table table-bordered table-striped table-hover mt-3">
+                            <thead>
+                                <tr>
+                                    <th>URL</th>
+                                    <th>Preview</th>
+                                    <th>Label</th>
+                                    <th>Rejected By</th>
+                                    <th>Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {failedImages.map(img => (
+                                    <tr key={img.image_url}>
+                                        <td><a href={img.image_url}>{img.image_url}</a></td>
+                                        <td>
+                                            <img
+                                                src={img.image_url}
+                                                alt=""
+                                                style={{ width: 100, borderRadius: 4, cursor: "pointer" }}
+                                                onClick={() => setZoomImageUrl(img.image_url)}
+                                                draggable={false}
+                                            />
+                                        </td>
+                                        <td>{img.label}</td>
+                                        <td>{img.approved_modified_by}</td>
+                                        <td>{new Date(img.created_at).toLocaleDateString()}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            )}
+            {zoomImageUrl && (
+                <ZoomModal
+                    imageUrl={zoomImageUrl}
+                    onClose={() => setZoomImageUrl(null)}
+                />
+            )}
+
         </div>
     );
 }

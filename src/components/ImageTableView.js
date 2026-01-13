@@ -1,21 +1,21 @@
 import { useState } from "react";
 import ZoomModal from "./ZoomModal";
 
-function ImageTableView({ 
-  imagenes, 
-  seleccionados, 
-  toggleSeleccion, 
-  toggleSeleccionarTodos, 
-  extraColumns=[],
-  onSort,              
-  sortBy,               
-  sortDirection          
+function ImageTableView({
+  imagenes,
+  seleccionados,
+  toggleSeleccion,
+  toggleSeleccionarTodos,
+  extraColumns = [],
+  onSort,
+  sortBy,
+  sortDirection
 }) {
   const [imagenModal, setImagenModal] = useState(null);
   const [zoomed, setZoomed] = useState(false);
-    const cerrarModal = () => {
-      setImagenModal(null);
-      setZoomed(false); // reset zoom
+  const cerrarModal = () => {
+    setImagenModal(null);
+    setZoomed(false); // reset zoom
   };
 
   const toggleZoom = (e) => {
@@ -37,7 +37,7 @@ function ImageTableView({
                 type="checkbox"
                 checked={
                   imagenes.length > 0 &&
-                  imagenes.every((img) => seleccionados.includes(img.id))
+                  imagenes.every((img) => seleccionados.includes(img.image_id))
                 }
                 onChange={toggleSeleccionarTodos}
               />
@@ -61,7 +61,7 @@ function ImageTableView({
         </thead>
         <tbody>
           {imagenes.map((img) => (
-            <tr key={img.id}>
+            <tr key={img.image_id}>
               <td><a href={img.image_url}>{img.image_url}</a></td>
               <td>
                 <img
@@ -78,8 +78,8 @@ function ImageTableView({
                   <input
                     className="form-check-input"
                     type="checkbox"
-                    checked={seleccionados.includes(img.id)}
-                    onChange={() => toggleSeleccion(img.id)}
+                    checked={seleccionados.includes(img.image_id)}
+                    onChange={() => toggleSeleccion(img.image_id)}
                   />
                 </div>
               </td>
@@ -90,9 +90,9 @@ function ImageTableView({
           ))}
         </tbody>
       </table>
-        {imagenModal && (
-          <ZoomModal imageUrl={imagenModal} onClose={cerrarModal} />
-        )}
+      {imagenModal && (
+        <ZoomModal imageUrl={imagenModal} onClose={cerrarModal} />
+      )}
     </div>
   );
 }
