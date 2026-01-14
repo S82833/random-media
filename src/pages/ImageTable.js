@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useFilteredImages } from "../hooks/useFilteredImages";
 import FiltersLabelKeywords from "../components/filters/FiltersLabelKeywords";
-import ImageTableView from "../components/ImageTableView";
+import ImageTableViewAll from "../components/ImageTableViewAll";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { useImageCount } from "../hooks/useImageCount";
@@ -263,7 +263,7 @@ function ImageTable() {
                 </button>
             </div>
 
-            <ImageTableView
+            <ImageTableViewAll
                 imagenes={imagenes}
                 seleccionados={seleccionados}
                 toggleSeleccion={toggleSeleccion}

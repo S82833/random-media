@@ -37,7 +37,7 @@ function ImageTableView({
                 type="checkbox"
                 checked={
                   imagenes.length > 0 &&
-                  imagenes.every((img) => seleccionados.includes(img.image_id))
+                  imagenes.every((img) => seleccionados.includes(img.id))
                 }
                 onChange={toggleSeleccionarTodos}
               />
@@ -61,7 +61,7 @@ function ImageTableView({
         </thead>
         <tbody>
           {imagenes.map((img) => (
-            <tr key={img.image_id}>
+            <tr key={img.id}>
               <td><a href={img.image_url}>{img.image_url}</a></td>
               <td>
                 <img
@@ -78,8 +78,8 @@ function ImageTableView({
                   <input
                     className="form-check-input"
                     type="checkbox"
-                    checked={seleccionados.includes(img.image_id)}
-                    onChange={() => toggleSeleccion(img.image_id)}
+                    checked={seleccionados.includes(img.id)}
+                    onChange={() => toggleSeleccion(img.id)}
                   />
                 </div>
               </td>
